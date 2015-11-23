@@ -3,11 +3,11 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>edu.cmu.cc.hadoop.kerberos</groupId>
-  <artifactId>KrbUserTime</artifactId>
+  <artifactId>loganalyzer</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>KrbUserTime</name>
+  <name>loganalyzer</name>
   <url>http://www.cmu.edu/computing</url>
 
   <properties>
