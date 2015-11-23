@@ -15,12 +15,17 @@
  *******************************************************************************/
 package edu.cmu.cc.hadoop.kerberos.loganalyzer;
 
+import java.io.IOException;
+
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.io.Text;
 
-public class UserTimeReducer extends Reducer<Text, Text, Text, Text> {
+public class UserTimeReducer extends Reducer<Text, UserTimeRec, Text, UserTimeRec> {
 
-	protected void reduce(Text key, Iterable<Text> values, Context context) {
-		
+	protected void reduce(Text key, Iterable<UserTimeRec> values, Context context) throws IOException, InterruptedException {
+		UserTimeRec result = new UserTimeRec();
+		for (UserTimeRec value : values)
+			result.merge(value);
+		context.write(key, result);
 	}
 }

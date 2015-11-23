@@ -33,8 +33,10 @@ public class UserTimeRunner extends Configured implements Tool {
 		job.setJarByClass(UserTimeRunner.class);
 		job.setMapperClass(UserTimeMapper.class);
 		job.setReducerClass(UserTimeReducer.class);
+		job.setCombinerClass(UserTimeReducer.class);
+		job.setInputFormatClass(KDCLogFileInputType.class);
 		job.setOutputKeyClass(Text.class);
-		job.setOutputValueClass(Text.class);
+		job.setOutputValueClass(UserTimeRec.class);
 		return 0;
 	}
 

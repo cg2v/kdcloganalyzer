@@ -21,10 +21,19 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.io.Text;
 
 
-public class UserTimeMapper extends Mapper<Object, Text, Text, Text> {
-	protected void map(Object key, Text value, Context context) throws IOException, InterruptedException
+public class UserTimeMapper extends Mapper<Object, KDCLogRecord, Text, UserTimeRec> {
+	protected void map(Object key, KDCLogRecord value, Context context) throws IOException, InterruptedException
 	{
+		if (!value.isValid() || !value.isSuccess() || value.isReferral() ||
+				value.getRequestType() != ReqType.AUTH)
+			return;
 		
+		Text user = new Text(value.getClient());
+		UserTimeRec data = new UserTimeRec();
+		data.setFirstts(value.getTime());
+		data.setLastts(value.getTime());
+		data.setCount(1);
+		context.write(user, data);
 	}
 
 }
