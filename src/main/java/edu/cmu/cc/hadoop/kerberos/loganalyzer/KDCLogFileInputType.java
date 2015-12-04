@@ -49,17 +49,7 @@ public class KDCLogFileInputType extends FileInputFormat<LongWritable, KDCLogRec
 	public RecordReader<LongWritable, KDCLogRecord> createRecordReader(
 			InputSplit arg0, TaskAttemptContext arg1) throws IOException,
 			InterruptedException {
-		// TODO Auto-generated method stub
-		return null;
+			return new KDCLogRecordReader();
 	}
 	
-	  public List<InputSplit> getSplits(JobContext job) 
-			  throws IOException { 
-			    List<InputSplit> splits = new ArrayList<InputSplit>(); 
-			     
-			    for (FileStatus status : listStatus(job)) { 
-			    	
-			    }
-			    return splits;
-	  }
 }
