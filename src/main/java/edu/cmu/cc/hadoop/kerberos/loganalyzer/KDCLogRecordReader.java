@@ -16,6 +16,7 @@
 package edu.cmu.cc.hadoop.kerberos.loganalyzer;
 
 import java.io.IOException;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
@@ -197,19 +198,55 @@ public class KDCLogRecordReader extends
         // We always read one extra line, which lies outside the upper
         // split limit i.e. (end - 1)
         while (getFilePosition() <= end) {
-            newSize = in.readLine(buffer, maxLineLength,
-                    Math.max(maxBytesToConsume(pos), maxLineLength));
-            if (newSize == 0) {
-                break;
-            }
-            pos += newSize;
-            if (newSize < maxLineLength) {
-                break;
-            }
-
-            // line too long. try again
-            LOG.info("Skipped line of size " + newSize + " at pos " +
-                    (pos - newSize));
+        	boolean complete = false;
+        	do {
+        		newSize = in.readLine(buffer, maxLineLength,
+        				Math.max(maxBytesToConsume(pos), maxLineLength));
+        		if (newSize == 0) {
+        			break;
+        		}
+        		pos += newSize;
+        		if (newSize < maxLineLength) {
+        			String current = buffer.toString();
+        			Matcher m = matchInitial.matcher(current);
+        			
+        			if (m.find()) {
+        				String ts = m.group(0);
+        				String reqtype = m.group(1);
+        				String client = m.group(2);
+        				String crealm = m.group(3);
+        				String ip = m.group(4);
+        				String server = m.group(5);
+        				String srealm = m.group(6);
+        				
+        				value.setTime(ts);
+        				switch (reqtype) {
+        				case "AS-REQ":
+        					value.setRequestType(ReqType.AUTH);
+        					break;
+        				case "TGS-REQ":
+        					value.setRequestType(ReqType.TGS);
+        					break;
+        				default:
+        					value.setRequestType(ReqType.UNKNOWN);
+        					break;
+        				}
+        				value.setClient(client);
+        				value.setCRealm(crealm);
+        				value.setService(server);
+        				value.setSRealm(srealm);
+        				continue;
+        			}
+        			Matcher m1 = matchSending.matcher(current);
+        			if (m1.find()) {
+        				complete = true;
+        			}
+        		}
+        		// line too long. try again
+        		LOG.info("Skipped line of size " + newSize + " at pos " +
+        				(pos - newSize));
+        	} while (!complete);
+        	
         }
         if (newSize == 0) {
             key = null;

@@ -25,8 +25,10 @@ public class KDCLogRecord implements WritableComparable<KDCLogRecord> {
 	private boolean valid;
 	private String ts;
 	private ReqType rt;
-	private String user;
+	private String client;
+	private String crealm;
 	private String service;
+	private String srealm;
 	private String clientip;
 	private boolean success;
 	private boolean referral;
@@ -57,11 +59,19 @@ public class KDCLogRecord implements WritableComparable<KDCLogRecord> {
 	}
 
 	public String getClient() {
-		return user;
+		return client;
 	}
 
 	public void setClient(String user) {
-		this.user = user;
+		this.client = user;
+	}
+
+	public String getCRealm() {
+		return crealm;
+	}
+
+	public void setCRealm(String crealm) {
+		this.crealm = crealm;
 	}
 
 	public String getService() {
@@ -70,6 +80,14 @@ public class KDCLogRecord implements WritableComparable<KDCLogRecord> {
 
 	public void setService(String service) {
 		this.service = service;
+	}
+
+	public String getSRealm() {
+		return srealm;
+	}
+
+	public void setSRealm(String srealm) {
+		this.srealm = srealm;
 	}
 
 	public boolean isSuccess() {
@@ -105,7 +123,7 @@ public class KDCLogRecord implements WritableComparable<KDCLogRecord> {
 		result = prime * result + ((rt == null) ? 0 : rt.hashCode());
 		result = prime * result + ((service == null) ? 0 : service.hashCode());
 		result = prime * result + ((ts == null) ? 0 : ts.hashCode());
-		result = prime * result + ((user == null) ? 0 : user.hashCode());
+		result = prime * result + ((client == null) ? 0 : client.hashCode());
 		return result;
 	}
 
@@ -145,10 +163,10 @@ public class KDCLogRecord implements WritableComparable<KDCLogRecord> {
 				return false;
 		} else if (!ts.equals(other.ts))
 			return false;
-		if (user == null) {
-			if (other.user != null)
+		if (client == null) {
+			if (other.client != null)
 				return false;
-		} else if (!user.equals(other.user))
+		} else if (!client.equals(other.client))
 			return false;
 		return true;
 	}
@@ -168,14 +186,14 @@ public class KDCLogRecord implements WritableComparable<KDCLogRecord> {
 		if (valid) { // valid record contains all fields. may or may not have error.
 			String rts=arg0.readUTF();
 			rt=ReqType.valueOf(rts);
-			user=arg0.readUTF();
+			client=arg0.readUTF();
 			service=arg0.readUTF();
 			clientip=arg0.readUTF();
 			referral=arg0.readBoolean();
 			success=arg0.readBoolean();
 		} else { // invalid record contains only error message
 			rt=ReqType.UNKNOWN;
-			user=null;
+			client=null;
 			service=null;
 			clientip=null;
 			referral=false;
@@ -192,7 +210,7 @@ public class KDCLogRecord implements WritableComparable<KDCLogRecord> {
 		arg0.writeBoolean(valid);
 		if (valid) {
 			arg0.writeUTF(rt.name());
-			arg0.writeUTF(user);
+			arg0.writeUTF(client);
 			arg0.writeUTF(service);
 			arg0.writeUTF(clientip);
 			arg0.writeBoolean(referral);
