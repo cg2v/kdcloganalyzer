@@ -178,6 +178,12 @@ public class KDCLogRecord implements WritableComparable<KDCLogRecord> {
 	public void setError(String error) {
 		this.error = error;
 	}
+	public void setErrorIfUnset(String error) {
+		if (this.error == null) {
+			this.error = error;
+		}
+		this.success = false;
+	}
 
 	@Override
 	public void readFields(DataInput arg0) throws IOException {
