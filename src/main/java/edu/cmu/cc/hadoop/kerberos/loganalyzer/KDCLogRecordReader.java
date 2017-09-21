@@ -45,41 +45,41 @@ public class KDCLogRecordReader extends
     private static final Log LOG = LogFactory.getLog(KDCLogRecordReader.class);
 
     private final static String TIMESTAMP = "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}";
-    private final static String ATOM = "[/-_\\.a-zA-Z0-9]+";
-    private final static String REALM = "[/-\\.a-zA-Z0-9]+";
+    private final static String ATOM = "[-/_\\.a-zA-Z0-9]+";
+    private final static String REALM = "[-\\.a-zA-Z0-9]+";
     private final Pattern matchInitial = Pattern.compile
 	("(" + TIMESTAMP +
 	 ")\\s+((?:AS|TGS)-REQ)\\s+(" + ATOM +
-	 ")@(" + REALM + ")\\s+from\\s+(IPv4:[\\d\\.]+|IPv6:[\\p{XDigit}.:])+for\\s+(" + ATOM +
+	 ")@(" + REALM + ")\\s+from\\s+(IPv4:[\\d\\.]+|IPv6:[\\p{XDigit}\\.:]+)\\s+for\\s+(" + ATOM +
 	 ")@(" + REALM + ")");
-    private final String matchPreauthSuccess = "\\bPre-authentication succeeded\\b";
-    private final String matchBadPassword = "\\bFailed to decrypt PA-DATA --";
-    private final String matchBadClient = "\\bUNKNOWN --";
-    private final String matchExpiredClient = "\\bClient expired\\b";
-    private final String matchKeyExpiredClient = "\\bClient's key has expired";
-    private final String matchKeyExpiredServer = "\\bServer's key has expired";
-    private final String matchNotServer = "\\bPrincipal may not act as server";
-    private final String matchNotClient = "\\bPrincipal may not act as client";
-    private final String matchTicketExpired = "\\bTicket expired";
-    private final String matchTimeSkew = "\\bToo large time skew";
-    private final String matchNoPreauthKey = "\\bNo key matches pa-data";
-    private final String matchBadTGS = "\\bkrb_rd_req:";
-    private final String matchFailedTGS = "\\bFailed building TGS-REP";
-    private final String matchBadServer = "\\bServer not found in database:?\\b";
-    private final String matchBadClient2 = "\\bClient no longer in database?:\\b";
-    private final String matchBadClient3 = "\\bClient not found in database:?\\b";
-    private final String matchBadU2UEtype = "\\bAddition ticket have not matching etypes\\b";
-    private final String matchBadServerEtype = "\\bServer \\(.*\\) has no support.*\\betypes\\b";
-    private final String matchUnsatisfiableRenew ="\\bBad request for renewable ticket";
-    private final String matchNotRenewable = "\\bequest to renew non-renewable ticket";
-    private final String matchNotForwardable = "\\bRequest to forward non-forwardable ticket";
+    private final String matchPreauthSuccess = ".*\\bPre-authentication succeeded\\b.*";
+    private final String matchBadPassword = ".*\\bFailed to decrypt PA-DATA --.*";
+    private final String matchBadClient = ".*\\bUNKNOWN --.*";
+    private final String matchExpiredClient = ".*\\bClient expired\\b*";
+    private final String matchKeyExpiredClient = ".*\\bClient's key has expired\\b.*";
+    private final String matchKeyExpiredServer = ".*\\bServer's key has expired\\b.*";
+    private final String matchNotServer = ".*\\bPrincipal may not act as server\\b.*";
+    private final String matchNotClient = ".*\\bPrincipal may not act as client\\b.*";
+    private final String matchTicketExpired = ".*\\bTicket expired";
+    private final String matchTimeSkew = ".*\\bToo large time skew";
+    private final String matchNoPreauthKey = ".*\\bNo key matches pa-data\\b.*";
+    private final String matchBadTGS = ".*\\bkrb_rd_req:.*";
+    private final String matchFailedTGS = ".*\\bFailed building TGS-REP\\b.*";
+    private final String matchBadServer = ".*\\bServer not found in database:?\\b.*";
+    private final String matchBadClient2 = ".*\\bClient no longer in database?:\\b.*";
+    private final String matchBadClient3 = ".*\\bClient not found in database:?\\b.*";
+    private final String matchBadU2UEtype = ".*\\bAddition ticket have not matching etypes\\b.*";
+    private final String matchBadServerEtype = ".*\\bServer \\(.*\\) has no support.*\\betypes\\b.*";
+    private final String matchUnsatisfiableRenew =".*\\bBad request for renewable ticket";
+    private final String matchNotRenewable = ".*\\request to renew non-renewable ticket";
+    private final String matchNotForwardable = ".*\\bRequest to forward non-forwardable ticket";
     private final Pattern matchNoVerifyTGS = Pattern.compile("(" + TIMESTAMP + ")\\s+(Failed to verify AP-REQ:.*)");
     private final Pattern matchFailedVerify = Pattern.compile("(" + TIMESTAMP + ")\\s+(Failed to verify (checksum|authenticator).*)");
-    private final String matchReferral ="\\b[Rr]eturning a referral to realm";
+    private final String matchReferral =".*\\b[Rr]eturning a referral to realm.*";
 
     private final Pattern matchSending = Pattern.compile
 	(TIMESTAMP + "\\s+sending\\s+\\d+\\s+bytes\\s+to\\s+" +
-	 "(?:IPv4:[\\d\\.]+|IPv6:[\\p{XDigit}.:])");
+	 "(?:IPv4:[\\d\\.]+|IPv6:[\\p{XDigit}\\.:]+)");
 
     private CompressionCodecFactory compressionCodecs = null;
     private long start;
@@ -230,13 +230,13 @@ public class KDCLogRecordReader extends
 		Matcher m = matchInitial.matcher(current);
 
 		if (m.find()) {
-		    String ts = m.group(0);
-		    String reqtype = m.group(1);
-		    String client = m.group(2);
-		    String crealm = m.group(3);
-		    String ip = m.group(4);
-		    String server = m.group(5);
-		    String srealm = m.group(6);
+		    String ts = m.group(1);
+		    String reqtype = m.group(2);
+		    String client = m.group(3);
+		    String crealm = m.group(4);
+		    String ip = m.group(5);
+		    String server = m.group(6);
+		    String srealm = m.group(7);
 
 		    value.setTime(ts);
 		    switch (reqtype) {
@@ -292,11 +292,11 @@ public class KDCLogRecordReader extends
 		    Matcher m2 = matchNoVerifyTGS.matcher(current);
 		    Matcher m3 = matchFailedVerify.matcher(current);
 		    if (m2.find()) {
-			value.setTime(m2.group(0));
+			value.setTime(m2.group(1));
 			value.setErrorIfUnset(m2.group(2));
 		    } else if (m3.find()) {
-			value.setTime(m2.group(0));
-			value.setErrorIfUnset(m2.group(2));
+			value.setTime(m3.group(1));
+			value.setErrorIfUnset(m3.group(2));
 		    }
 		}
 	    } else {
