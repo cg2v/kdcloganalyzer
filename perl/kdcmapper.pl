@@ -4,6 +4,7 @@ our $svc=undef;
 our $svct=undef;
 our $records=0;
 our $errorentries=0;
+our $referrals=0;
 our $badreq=0;
 our $badauth=0;
 our $badpass=0;
@@ -12,6 +13,10 @@ sub report {
     return if ($records < $limit);
     print STDERR "reporter:counter:Kerberos Log,accepted,$records\n";
     $records=0;
+    if ($referrals >= $limit) {
+       print STDERR "reporter:counter:Kerberos Log,referrals,$referrals\n";
+       $referrals=0;
+    }
     if ($errorentries >= $limit) {
        print STDERR "reporter:counter:Kerberos Log,errorsfound,$errorentries\n";
        $errorentries=0;
@@ -30,8 +35,8 @@ sub report {
     }
 }
 while (<>) {
-   if (/(\S+)\s+Pre-authentication succeded --\s+(\w+)\@ANDREW.CMU.EDU/) {
-       print $2 . "\t" . $1 . "\n";
+   if (/(\S+)\s+\S+\s+Pre-authentication succeeded --\s+(\w+)\@ANDREW.CMU.EDU/) {
+       print "u:" . $2 . "\t" . $1 . "\n";
        $records++;
    }
    if (/(\S+)\s+TGS-REQ\s+.*\s+for\s+(\S+)\@ANDREW.CMU.EDU/) {
@@ -40,14 +45,17 @@ while (<>) {
    }
    if (/\S+\s+sending/) {
       if (defined($svc)) {
-          print $svc . "\t" . $svct . "\n";
+          print "s:" . $svc . "\t" . $svct . "\n";
           $records++;
       }
       $svc = undef;
    }
+   if (/[Rr]eturning a referral to realm/) {
+      $referrals++;
+      $svc = undef;
+   }
    if (/UNKNOWN|Server not found in database|\s+expired\s/) {
      
-      $svc = undef;
       $errorentries++;
       $badreq++;
     }
