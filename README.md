@@ -11,4 +11,4 @@ kdc log files. Possible queries include:
 - most common errors
 - identify users who only use a small number of services.
 
-At this time, none of these are done, but a single job that does the first four is in progress. python scripts that do soemthing similar (as a mapreduce streaming job) are in the python subdirectory
+At this time, none of these are done, but a single job that does the first four is in progress. ~python~perl scripts that do soemthing similar (as a mapreduce streaming job) are in the ~python~perl subdirectory
