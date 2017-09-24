@@ -22,6 +22,10 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+
 
 // Find the earliest and latest date each user successfully authenticated to this kerberos realm
 public class UserTimeRunner extends Configured implements Tool {
@@ -32,12 +36,15 @@ public class UserTimeRunner extends Configured implements Tool {
 		Job job = Job.getInstance(conf, "get kerberos user data");
 		job.setJarByClass(UserTimeRunner.class);
 		job.setMapperClass(UserTimeMapper.class);
+		job.setCombinerClass(UserTimeCombiner.class);
 		job.setReducerClass(UserTimeReducer.class);
-		job.setCombinerClass(UserTimeReducer.class);
 		job.setInputFormatClass(KDCLogFileInputType.class);
 		job.setOutputKeyClass(Text.class);
-		job.setOutputValueClass(UserTimeRec.class);
-		return 0;
+		job.setOutputValueClass(Text.class);
+		job.setMapOutputValueClass(UserTimeRec.class);
+		FileInputFormat.addInputPath(job, new Path(arg0[0]));
+		FileOutputFormat.setOutputPath(job, new Path(arg0[1]));
+		return job.waitForCompletion(true) ? 0 : 1;
 	}
 
 	/**

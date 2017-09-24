@@ -132,4 +132,8 @@ public class UserTimeRec implements WritableComparable<UserTimeRec> {
 		else
 			count = count + arg0.count;
 	}
+
+	public String tsv() {
+		return String.format("%s\t%s\t%d", firstts, lastts, count);
+	}
 }

@@ -20,12 +20,12 @@ import java.io.IOException;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.io.Text;
 
-public class UserTimeReducer extends Reducer<Text, UserTimeRec, Text, Text> {
+public class UserTimeCombiner extends Reducer<Text, UserTimeRec, Text, UserTimeRec> {
 
 	protected void reduce(Text key, Iterable<UserTimeRec> values, Context context) throws IOException, InterruptedException {
 		UserTimeRec result = new UserTimeRec();
 		for (UserTimeRec value : values)
 			result.merge(value);
-		context.write(key, new Text(result.tsv()));
+		context.write(key, result);
 	}
 }
