@@ -260,4 +260,13 @@ public class KDCLogRecord implements WritableComparable<KDCLogRecord> {
 		}
 		return 0;
 	}
+
+	@Override
+	public String toString() {
+		return "KDCLogRecord [valid=" + valid + ", ts=" + ts + ", rt=" + rt
+				+ ", client=" + client + ", crealm=" + crealm + ", service="
+				+ service + ", srealm=" + srealm + ", clientip=" + clientip
+				+ ", success=" + success + ", referral=" + referral
+				+ ", error=" + error + "]";
+	}
 }
