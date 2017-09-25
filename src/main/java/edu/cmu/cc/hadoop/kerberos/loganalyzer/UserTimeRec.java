@@ -17,7 +17,6 @@ package edu.cmu.cc.hadoop.kerberos.loganalyzer;
 
 import java.io.DataInput;
 import java.io.DataOutput;
-import java.io.EOFException;
 import java.io.IOException;
 
 import org.apache.hadoop.io.WritableComparable;
@@ -30,13 +29,9 @@ public class UserTimeRec implements WritableComparable<UserTimeRec> {
 	
 	@Override
 	public void readFields(DataInput arg0) throws IOException {
-		try {
 		firstts = arg0.readUTF();
 		lastts = arg0.readUTF();
 		count = arg0.readInt();
-		} catch (EOFException exaz) {
-			count = -1;
-		}
 	}
 
 	@Override
@@ -127,10 +122,7 @@ public class UserTimeRec implements WritableComparable<UserTimeRec> {
 			firstts = arg0.firstts;
 		if (lastts == null || lastts.compareTo(arg0.lastts) > 0)
 			lastts = arg0.lastts;
-		if (count < 0 || arg0.count < 0)
-			count = -1;
-		else
-			count = count + arg0.count;
+		count = count + arg0.count;
 	}
 
 	public String tsv() {
