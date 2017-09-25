@@ -25,6 +25,7 @@ public class KDCLogRecord implements WritableComparable<KDCLogRecord> {
 	private boolean valid;
 	private String ts;
 	private ReqType rt;
+	private KDCLogErrorClass error_class;
 	private String client;
 	private String crealm;
 	private String service;
@@ -178,11 +179,19 @@ public class KDCLogRecord implements WritableComparable<KDCLogRecord> {
 	public void setError(String error) {
 		this.error = error;
 	}
-	public void setErrorIfUnset(String error) {
+	public void setErrorIfUnset(String error, KDCLogErrorClass error_class) {
 		if (this.error == null) {
 			this.error = error;
+			this.error_class = error_class;
 		}
 		this.success = false;
+	}
+	public KDCLogErrorClass getErrorClass() {
+		return error_class;
+	}
+
+	public void setErrorClass(KDCLogErrorClass error_class) {
+		this.error_class = error_class;
 	}
 
 	@Override
@@ -197,6 +206,8 @@ public class KDCLogRecord implements WritableComparable<KDCLogRecord> {
 			clientip=arg0.readUTF();
 			referral=arg0.readBoolean();
 			success=arg0.readBoolean();
+			String eclss=arg0.readUTF();
+			error_class=KDCLogErrorClass.valueOf(eclss);
 		} else { // invalid record contains only error message
 			rt=ReqType.UNKNOWN;
 			client=null;
@@ -204,6 +215,7 @@ public class KDCLogRecord implements WritableComparable<KDCLogRecord> {
 			clientip=null;
 			referral=false;
 			success=false;
+			error_class=KDCLogErrorClass.NO_ERROR;
 		}
 		if (!success)
 			error=arg0.readUTF();
@@ -221,6 +233,7 @@ public class KDCLogRecord implements WritableComparable<KDCLogRecord> {
 			arg0.writeUTF(clientip);
 			arg0.writeBoolean(referral);
 			arg0.writeBoolean(success);
+			arg0.writeUTF(error_class.name());
 		}
 		if (!valid || !success)
 			arg0.writeUTF(error);

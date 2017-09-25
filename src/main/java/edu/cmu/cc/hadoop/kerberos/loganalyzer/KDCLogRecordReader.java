@@ -270,27 +270,32 @@ public class KDCLogRecordReader extends
 		    complete = true;
 		} else if (current.contains(matchPreauthSuccess)) {
 		    value.setSuccess(true); // AS-REQ only succeeds with preauth
-		} else if (current.contains(matchBadPassword) ||
-			   current.contains(matchBadClient) ||
-			   current.contains(matchBadClient2) ||
-			   current.contains(matchBadClient3) ||
-			   current.contains(matchBadServer) ||
-			   current.contains(matchExpiredClient) ||
-			   current.contains(matchKeyExpiredClient) ||
-			   current.contains(matchKeyExpiredServer) ||
-			   current.contains(matchNotServer) ||
-			   current.contains(matchNotClient) ||
-			   current.contains(matchBadTGS) ||
+		} else if (current.contains(matchBadPassword)) {
+			value.setErrorIfUnset(current, KDCLogErrorClass.BAD_PASSWORD);
+	    } else if (current.contains(matchBadClient) ||
+				   current.contains(matchBadClient2) ||
+				   current.contains(matchBadClient3) ||
+				   current.contains(matchBadServer)) {
+			value.setErrorIfUnset(current, KDCLogErrorClass.BAD_NAME);
+	    } else if (current.contains(matchExpiredClient) ||
+				   current.contains(matchKeyExpiredClient) ||
+				   current.contains(matchKeyExpiredServer) ||
+				   current.contains(matchNotServer) ||
+				   current.contains(matchNotClient)) {
+			value.setErrorIfUnset(current, KDCLogErrorClass.UNUSABLE_NAME);
+	    } else if (current.contains(matchBadTGS) ||
 			   current.contains(matchTimeSkew) ||
 			   current.contains(matchNoPreauthKey) ||
 			   matchBadServerEtype.matcher(current).matches() ||
 			   current.contains(matchBadU2UEtype) ||
 			   current.contains(matchUnsatisfiableRenew) ||
-			   current.contains(matchTicketExpired) ||
-			   current.contains(matchNotForwardable) ||
+			   current.contains(matchTicketExpired)) {
+			value.setErrorIfUnset(current, KDCLogErrorClass.BAD_AUTHENTICATION);
+	    } else if (current.contains(matchNotForwardable) ||
 			   current.contains(matchNotRenewable)) {
-			   current.contains(matchFailedTGS)) {
-			value.setErrorIfUnset(current);
+			value.setErrorIfUnset(current, KDCLogErrorClass.BAD_PARAMETERS);
+	    } else if (current.contains(matchFailedTGS)) {
+			value.setErrorIfUnset(current, KDCLogErrorClass.UNKNOWN);
 		} else if (current.contains(matchReferral)) {
 			value.setReferral(true);
 		} else {
@@ -298,10 +303,10 @@ public class KDCLogRecordReader extends
 		    Matcher m3 = matchFailedVerify.matcher(current);
 		    if (m2.find()) {
 			value.setTime(m2.group(1));
-			value.setErrorIfUnset(m2.group(2));
+			value.setErrorIfUnset(m2.group(2), KDCLogErrorClass.BAD_AUTHENTICATION);
 		    } else if (m3.find()) {
 			value.setTime(m3.group(1));
-			value.setErrorIfUnset(m3.group(2));
+			value.setErrorIfUnset(m3.group(2), KDCLogErrorClass.BAD_AUTHENTICATION);
 		    }
 		}
 	    } else {
