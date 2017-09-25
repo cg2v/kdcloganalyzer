@@ -212,9 +212,8 @@ public class KDCLogRecordReader extends
 	    key = new LongWritable();
 	}
 	key.set(pos);
-	if (value == null) {
-	    value = new KDCLogRecord();
-	}
+	value = new KDCLogRecord();
+
 	if (buffer == null) {
 	    buffer = new Text();
 	}
