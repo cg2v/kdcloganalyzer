@@ -38,7 +38,7 @@ public class UserTimeRec implements WritableComparable<UserTimeRec> {
 	public void write(DataOutput arg0) throws IOException {
 		arg0.writeUTF(firstts);
 		arg0.writeUTF(lastts);
-		arg0.write(count);
+		arg0.writeInt(count);
 	}
 
 	@Override
