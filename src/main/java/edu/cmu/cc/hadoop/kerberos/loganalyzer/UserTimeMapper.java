@@ -20,14 +20,34 @@ import java.io.IOException;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.io.Text;
 
-
-public class UserTimeMapper extends Mapper<Object, KDCLogRecord, Text, UserTimeRec> {
-	protected void map(Object key, KDCLogRecord value, Context context) throws IOException, InterruptedException
-	{
-		if (!value.isValid() || !value.isSuccess() || value.isReferral() ||
-				value.getRequestType() != ReqType.AUTH)
+public class UserTimeMapper extends
+		Mapper<Object, KDCLogRecord, Text, UserTimeRec> {
+	protected void map(Object key, KDCLogRecord value, Context context)
+			throws IOException, InterruptedException {
+		if (!value.isValid()) {
+			context.getCounter("Record Type","Invalid").increment(1);
+			context.getCounter("Rejected Records","Invalid").increment(1);
 			return;
-		
+		}
+		context.getCounter("Record Type", value.getRequestType().name()).increment(1);
+		if (!value.isSuccess()) {
+			context.getCounter("Rejected Records","Failed").increment(1);
+			if (value.getErrorClass() != null && value.getErrorClass() != KDCLogErrorClass.NO_ERROR) {
+				context.getCounter("Kerberos Errors", value.getErrorClass().name()).increment(1);
+			} else {
+				context.getCounter("Kerberos Errors", "Missing Pre-authentication").increment(1);
+			}
+			return;
+		}
+		if (value.getRequestType() != ReqType.AUTH) {
+			context.getCounter("Rejected Records","Request Type").increment(1);
+			return;
+		}
+		if (value.isReferral()) {
+			context.getCounter("Rejected Records","Referral").increment(1);
+			return;	
+		}
+
 		Text user = new Text(value.getClient());
 		UserTimeRec data = new UserTimeRec();
 		data.setFirstts(value.getTime());
