@@ -35,7 +35,7 @@ sub report {
     }
 }
 while (<>) {
-   if (/(\S+)\s+\S+\s+Pre-authentication succeeded --\s+(\w+)\@ANDREW.CMU.EDU/) {
+   if (/(\S+)\s+\S+\s+Pre-authentication succeeded --\s+(\S+)\@ANDREW.CMU.EDU/) {
        print "u:" . $2 . "\t" . $1 . "\n";
        $records++;
    }
