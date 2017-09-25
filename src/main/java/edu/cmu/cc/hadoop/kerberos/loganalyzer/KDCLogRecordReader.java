@@ -52,31 +52,30 @@ public class KDCLogRecordReader extends
 	 ")\\s+((?:AS|TGS)-REQ)\\s+(" + ATOM +
 	 ")@(" + REALM + ")\\s+from\\s+(IPv4:[\\d\\.]+|IPv6:[\\p{XDigit}\\.:]+)\\s+for\\s+(" + ATOM +
 	 ")@(" + REALM + ")");
-    private final Pattern matchPreauthSuccess = Pattern.compile(".*\\bPre-authentication succeeded\\b.*");
-    private final Pattern matchBadPassword = Pattern.compile(".*\\bFailed to decrypt PA-DATA --.*");
-    private final Pattern matchBadClient = Pattern.compile(".*\\bUNKNOWN --.*");
-    private final Pattern matchExpiredClient = Pattern.compile(".*\\bClient expired\\b*");
-    private final Pattern matchKeyExpiredClient = Pattern.compile(".*\\bClient's key has expired\\b.*");
-    private final Pattern matchKeyExpiredServer = Pattern.compile(".*\\bServer's key has expired\\b.*");
-    private final Pattern matchNotServer = Pattern.compile(".*\\bPrincipal may not act as server\\b.*");
-    private final Pattern matchNotClient = Pattern.compile(".*\\bPrincipal may not act as client\\b.*");
-    private final Pattern matchTicketExpired = Pattern.compile(".*\\bTicket expired");
-    private final Pattern matchTimeSkew = Pattern.compile(".*\\bToo large time skew");
-    private final Pattern matchNoPreauthKey = Pattern.compile(".*\\bNo key matches pa-data\\b.*");
-    private final Pattern matchBadTGS = Pattern.compile(".*\\bkrb_rd_req:.*");
-    private final Pattern matchFailedTGS = Pattern.compile(".*\\bFailed building TGS-REP\\b.*");
-    private final Pattern matchBadServer = Pattern.compile(".*\\bServer not found in database:?\\b.*");
-    private final Pattern matchBadClient2 = Pattern.compile(".*\\bClient no longer in database?:\\b.*");
-    private final Pattern matchBadClient3 = Pattern.compile(".*\\bClient not found in database:?\\b.*");
-    private final Pattern matchBadU2UEtype = Pattern.compile(".*\\bAddition ticket have not matching etypes\\b.*");
+    private final String matchPreauthSuccess = "Pre-authentication succeeded";
+    private final String matchBadPassword = "Failed to decrypt PA-DATA --";
+    private final String matchBadClient = "UNKNOWN --";
+    private final String matchExpiredClient = "Client expired";
+    private final String matchKeyExpiredClient = "Client's key has expired";
+    private final String matchKeyExpiredServer = "Server's key has expired";
+    private final String matchNotServer = "Principal may not act as server";
+    private final String matchNotClient = "Principal may not act as client";
+    private final String matchTicketExpired = "Ticket expired";
+    private final String matchTimeSkew = "Too large time skew";
+    private final String matchNoPreauthKey = "No key matches pa-data";
+    private final String matchBadTGS = "krb_rd_req:";
+    private final String matchFailedTGS = "Failed building TGS-REP";
+    private final String matchBadServer = "Server not found in database";
+    private final String matchBadClient2 = "Client no longer in database";
+    private final String matchBadClient3 = "Client not found in database";
+    private final String matchBadU2UEtype = "Addition ticket have not matching etypes";
+    private final String matchUnsatisfiableRenew = "Bad request for renewable ticket";
+    private final String matchNotRenewable = "equest to renew non-renewable ticket";
+    private final String matchNotForwardable = "equest to forward non-forwardable ticket";
     private final Pattern matchBadServerEtype = Pattern.compile(".*\\bServer \\(.*\\) has no support.*\\betypes\\b.*");
-    private final Pattern matchUnsatisfiableRenew = Pattern.compile(".*\\bBad request for renewable ticket");
-    private final Pattern matchNotRenewable = Pattern.compile(".*\\request to renew non-renewable ticket");
-    private final Pattern matchNotForwardable = Pattern.compile(".*\\bRequest to forward non-forwardable ticket");
     private final Pattern matchNoVerifyTGS = Pattern.compile("(" + TIMESTAMP + ")\\s+(Failed to verify AP-REQ:.*)");
     private final Pattern matchFailedVerify = Pattern.compile("(" + TIMESTAMP + ")\\s+(Failed to verify (checksum|authenticator).*)");
-    private final Pattern matchReferral = Pattern.compile(".*\\b[Rr]eturning a referral to realm.*");
-
+    private final String matchReferral = "eturning a referral to realm";
     private final Pattern matchSending = Pattern.compile
 	(TIMESTAMP + "\\s+sending\\s+\\d+\\s+bytes\\s+to\\s+" +
 	 "(?:IPv4:[\\d\\.]+|IPv6:[\\p{XDigit}\\.:]+)");
@@ -269,31 +268,31 @@ public class KDCLogRecordReader extends
 		Matcher m1 = matchSending.matcher(current);
 		if (m1.find()) {
 		    complete = true;
-		} else if (matchPreauthSuccess.matcher(current).matches()) {
+		} else if (current.contains(matchPreauthSuccess)) {
 		    value.setSuccess(true); // AS-REQ only succeeds with preauth
-		} else if (matchBadPassword.matcher(current).matches() ||
-			   matchBadClient.matcher(current).matches() ||
-			   matchExpiredClient.matcher(current).matches() ||
-			   matchTimeSkew.matcher(current).matches() ||
-			   matchNoPreauthKey.matcher(current).matches() ||
-			   matchBadTGS.matcher(current).matches() ||
-			   matchBadClient2.matcher(current).matches() ||
-			   matchBadClient3.matcher(current).matches() ||
-			   matchBadServer.matcher(current).matches() ||
+		} else if (current.contains(matchBadPassword) ||
+			   current.contains(matchBadClient) ||
+			   current.contains(matchBadClient2) ||
+			   current.contains(matchBadClient3) ||
+			   current.contains(matchBadServer) ||
+			   current.contains(matchExpiredClient) ||
+			   current.contains(matchKeyExpiredClient) ||
+			   current.contains(matchKeyExpiredServer) ||
+			   current.contains(matchNotServer) ||
+			   current.contains(matchNotClient) ||
+			   current.contains(matchBadTGS) ||
+			   current.contains(matchTimeSkew) ||
+			   current.contains(matchNoPreauthKey) ||
 			   matchBadServerEtype.matcher(current).matches() ||
-			   matchBadU2UEtype.matcher(current).matches()||
-			   matchUnsatisfiableRenew.matcher(current).matches() ||
-			   matchKeyExpiredClient.matcher(current).matches() ||
-			   matchKeyExpiredServer.matcher(current).matches() ||
-			   matchNotServer.matcher(current).matches() ||
-			   matchNotClient.matcher(current).matches() ||
-			   matchTicketExpired.matcher(current).matches() ||
-			   matchNotForwardable.matcher(current).matches() ||
-			   matchNotRenewable.matcher(current).matches() ||
-			   matchFailedTGS.matcher(current).matches()) {
-		    value.setErrorIfUnset(current);
-		} else if (matchReferral.matcher(current).matches()) {
-		    value.setReferral(true);
+			   current.contains(matchBadU2UEtype) ||
+			   current.contains(matchUnsatisfiableRenew) ||
+			   current.contains(matchTicketExpired) ||
+			   current.contains(matchNotForwardable) ||
+			   current.contains(matchNotRenewable)) {
+			   current.contains(matchFailedTGS)) {
+			value.setErrorIfUnset(current);
+		} else if (current.contains(matchReferral)) {
+			value.setReferral(true);
 		} else {
 		    Matcher m2 = matchNoVerifyTGS.matcher(current);
 		    Matcher m3 = matchFailedVerify.matcher(current);
