@@ -58,6 +58,7 @@ while (<>) {
      
       $errorentries++;
       $badreq++;
+      $svc = undef;
     }
     if (/krb_rd_req:|No key matches pa-data|Too large time skew|Failed building TGS-REP/) {
       $svc = undef;
