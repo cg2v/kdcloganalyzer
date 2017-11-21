@@ -1,6 +1,6 @@
 Heimdal KDC log analysis code for hadoop
 
-When complete, this project will include analysis jonbs for hadoop for processing large numbers of heimdal
+When complete, this project will include analysis jobs for hadoop for processing large numbers of heimdal
 kdc log files. Possible queries include:
 
 - number of authentications per user
@@ -11,4 +11,4 @@ kdc log files. Possible queries include:
 - most common errors
 - identify users who only use a small number of services.
 
-At this time, none of these are done, but a single job that does the first four is in progress. ~python~perl scripts that do soemthing similar (as a mapreduce streaming job) are in the ~python~perl subdirectory
+At this time, none of these are done, but a single job that does the first four is in progress. ~python~perl scripts that do something similar (as a mapreduce streaming job) are in the ~python~perl subdirectory
